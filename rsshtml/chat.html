@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<style>
+        .messagebox {
+        width: 420px;
+        height: 150px;
+        border: 1px solid black;
+      }
+</style>
+</head>
+<body>
+    <div class="container">
+    <div id="messagebox" class="messagebox"></div>
+    <div class="input">
+    <input type="text" id="username" placeholder="username" value=""/>
+    <input type="text" id="message" placeholder="메세지" value=""/>
+    <button id="btn-send">send</button>
+    </div>
+</div>
+
+<script>
+   document.querySelector("#btn-send").addEventListener("click", () => {
+        let username = document.querySelector("#username").value;
+        let message = document.querySelector("#message").value;
+        let data = username + ":" + message;
+        fetch("http://localhost:8080/send?username=" + username + "&message=" + message)
+          .then((res) => res.text())
+          .then((res) => {
+            let element_p = document.createElement("p");
+            messagebox.appendChild(element_p);
+            document.querySelector("#message").value = "";
+          });
+      });
+
+    const messagebox = document.querySelector("#messagebox");
+      const eventSource = new EventSource(`http://localhost:8080/sse`);
+      eventSource.onmessage = (event) => {
+        console.log("enent.data:" + event.data);
+          let element_p = document.createElement("p");
+          element_p.textContent = event.data;
+          messagebox.appendChild(element_p);
+      };
+
+    eventSource.onerror = error =>{
+        eventSource.close();
+    };
+</script>
+</body>
+</html>
